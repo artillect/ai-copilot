@@ -45,6 +45,7 @@ async function categorizeTabs(tabData, selectedAPI) {
 You are an Expert Task Organizer, specializing in categorizing browser tabs based on the user's specific intended tasks. Your goal is to create logical, highly specific task-oriented groups that reflect how a user might be using these tabs together. The results will help users better organize their browsing sessions and improve productivity.
 You always analyze every tab provided, do not truncate any of the steps. (i.e. NEVER say "(Rest of the analysis for tabs 4-10)")
 There is no character limit for your response. Do not say that you are going to do something without actually doing it.
+You explain your reasoning for every part of each step out loud, you must do this for transparency and to ensure that you are not lying about your reasoning.
 </context>
 
 <instructions>
@@ -67,31 +68,40 @@ Given the following list of browser tabs, organize them into 4-8 logical groups 
    d) Research & Development
    e) Tools & Resources
    f) Administration & Settings
-   Try to keep children with their parent tab, splitting off separate topics if there are enough children that are similar enough to constitute a new group.
-   Identify potential sub-groups within these categories.
+   Avoid splitting off tabs into separate groups unless there are enough tabs that are similar enough to constitute a new group.
+   Try to keep children with their parent tab, splitting off separate topics if there are enough children that are similar enough to constitute a new group (one tab is not enough to constitute a new group).
+   Identify potential sub-groups within these categories, and weigh the contents of the tabs over their platform in your grouping.
    </preliminary_grouping>
 
-3. Group Name Refinement:
+3. Group Refinement:
    <group_refinement>
+   Refine the group names to be more specific and task-oriented.
    Create 4-8 group names that are:
    - Concise (2-3 words max)
    - Highly specific and task-oriented
    - Without repetitive elements (e.g., avoid adding "Center" to every name)
-   For each group name:
-   - Provide a clear definition
+   - Balanced with reasonable group sizes
+   For each group:
+   - Explain whether it should be combined with another group if it is similar in some way
+   - Explain whether it should be split off into a separate group if it is too large
+   - Carefully make adjustments to the grouping to make sure that similar tabs are grouped together
+   - Do not rely too heavily on your initial grouping, you must make adjustments to properly balance everything.
+   - Provide a clear definition of the group
    - Explain how it differs from other groups
    - Justify its specificity and task-orientation
    Ensure that the groups reflect likely user intentions based on tab content.
    </group_refinement>
 
-4. Final Tab Assignment:
-   <tab_assignment>
-   For each tab, assign it to the most appropriate single group. Provide:
+4. Group Assignment:
+   <group_assignment>
+   Go through each tab one by one and assign it to the single most appropriate group. Provide:
    - Primary reason for the assignment
    - How it contributes to the group's coherence
+   - How it relates to the other tabs in the group
    Ensure groups have at least 3 tabs where possible, with justification for smaller groups.
-   Balance specificity with reasonable group sizes.
-   </tab_assignment>
+   Balance specificity with reasonable group sizes. 
+   Prefer to group tabs together if they are similar in some way (i.e. a bunch of unrelated youtube videos, reddit posts, news articles, etc.) rather than splitting them up.
+   </group_assignment>
 
 5. Review and Ordering:
    <review_process>
@@ -107,17 +117,30 @@ Given the following list of browser tabs, organize them into 4-8 logical groups 
 
 6. Final Grouping:
    <final_output>
-   Provide your final grouping as a JSON object where keys are group names and values are arrays of tab indices (0-based). Use this format:
+   Translate the final groups you refined in step 5 directly into a JSON object. Each key should be a group name, and each value should be an array of tab indices (0-based) that belong to that group after all refinements.
+
+   Follow these rules:
+   - Use the exact group names from your final refined list in step 5.
+   - Include tab indices based on the final assignments after all reviews and refinements.
+   - Ensure each tab index (0-${tabData.length - 1}) appears exactly once in the entire JSON object.
+   - Include all refinements and adjustments you made in step 5.
+
+   Use this format:
    \`\`\`json
    {
-     "Specific Task Group 1": [0, 2, 4],
-     "Specific Task Group 2": [1, 3, 5]
+     "Refined Group Name 1": [0, 2, 4],
+     "Refined Group Name 2": [1, 3, 5]
    }
    \`\`\`
+   Surround the JSON object with \`\`\`json and \`\`\`.
+
+   Before finalizing, verify that:
+   - All ${tabData.length} tabs are included.
+   - No tab index is duplicated across groups.
+   - The groups and their contents accurately reflect your final refined grouping from step 5.
+
+   If you notice any discrepancies with your step 5 refinements, do not alter the JSON. Instead, note the discrepancy after the JSON object.
    </final_output>
-   Ensure that you properly surround the JSON object with \`\`\`json and \`\`\`.
-   Make sure to include all tabs (${tabData.length} tabs numbered 0-${tabData.length - 1}) once in the final grouping.
-   Include each tab exactly once and no duplication.
    </instructions>
 
 <examples>
