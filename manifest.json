@@ -1,0 +1,12 @@
+{
+  "manifest_version": 2,
+  "name": "Tab Grouper",
+  "version": "1.0",
+  "description": "Group tabs in a sidebar",
+  "permissions": ["tabs", "storage"],
+  "sidebar_action": {
+    "default_title": "Tab Groups",
+    "default_panel": "sidebar/sidebar.html",
+    "default_icon": "icon.png"
+  }
+}

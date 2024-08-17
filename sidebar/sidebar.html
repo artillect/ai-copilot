@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { 
+      width: 100%; 
+      padding: 10px; 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+      background-color: #23222b;
+      color: #fbfbfe;
+    }
+    button { 
+      width: 100%; 
+      margin-bottom: 10px; 
+      padding: 8px; 
+      background-color: #4CAF50; 
+      color: white; 
+      border: none; 
+      border-radius: 4px; 
+      cursor: pointer; 
+      display: flex;
+      align-items: center;
+    }
+    button:hover { 
+      background-color: #45a049; 
+    }
+    #status { 
+      margin-top: 10px; 
+      color: #333; 
+    }
+    .spinner { 
+      display: none; 
+      border: 4px solid #f3f3f3; 
+      border-top: 4px solid #3498db; 
+      border-radius: 50%; 
+      width: 20px; 
+      height: 20px; 
+      animation: spin 1s linear infinite; 
+    }
+    @keyframes spin { 
+      0% { transform: rotate(0deg); } 
+      100% { transform: rotate(360deg); } 
+    }
+    #tabGroups { margin-top: 20px; }
+    .group { 
+      margin-bottom: 20px; 
+      background-color: #2b2a33;
+      border-radius: 4px; 
+      padding: 10px; 
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .group-title { 
+      font-weight: bold; 
+      color: #fbfbfe; 
+      margin-bottom: 12px; 
+      padding-bottom: 5px;
+      border-bottom: 1px solid #5b5b66;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+    }
+    .group-title::before {
+      content: '\25BC';
+      margin-right: 5px;
+      transition: transform 0.3s;
+    }
+    .group.collapsed .group-title::before {
+      transform: rotate(-90deg);
+    }
+    .tab-list { 
+      margin-left: 0; 
+      list-style-type: none; 
+      padding-left: 0; 
+    }
+    .group.collapsed .tab-list {
+      display: none;
+    }
+    .tab-list .tab-item { 
+      margin-bottom: 5px;
+      background-color: #38383d;
+      border-radius: 4px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      padding: 8px 12px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      justify-content: space-between; /* Distribute elements horizontally */
+    }
+    .tab-list .tab-item:hover {
+      background-color: #42414d;
+    }
+    .tab-list .tab-item.active-tab {
+      background-color: #4a4a57;
+      border-left: 3px solid #0a84ff;
+      transition: background-color 0.2s ease-in-out;
+    }
+    .tab-list .tab-item.active-tab:hover {
+      background-color: #52525e;
+    }
+    .tab-list .tab-item.active-tab .tab-title::after {
+      background: linear-gradient(to right, transparent, #4a4a57) !important;
+    }
+    .tab-list .tab-item.active-tab:hover .tab-title::after {
+      background: linear-gradient(to right, transparent, #52525e) !important;
+    }
+    .tab-title {
+      color: #fbfbfe; 
+      white-space: nowrap;
+      overflow: hidden;
+      flex-grow: 1;
+      position: relative;
+    }
+    .tab-title::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 30px;
+      background: linear-gradient(to right, rgba(56, 56, 61, 0), #38383d);
+      pointer-events: none;
+      transition: background-color 0.2s ease-in-out;
+    }
+    .tab-list .tab-item:hover .tab-title::after {
+      background: linear-gradient(to right, rgba(66, 65, 77, 0), #42414d);
+    }
+    .favicon {
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+    .close-tab {
+      background-color: transparent;
+      border: none;
+      color: #fbfbfe;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 0 5px;
+      width: 16px; /* Set the width of the close button to the width of the X */
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+
+    .close-tab:hover {
+      opacity: 1;
+    }
+
+    .tab-item-content {
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      flex-grow: 1;
+    }
+  </style>
+</head>
+<body>
+  <select id="apiSelect">
+    <option value="anthropic">Anthropic API</option>
+    <option value="groq">Groq API</option>
+  </select>
+  <button id="groupTabs">
+    <span id="buttonText">Group Tabs</span>
+    <div class="spinner" id="spinner"></div>
+  </button>
+  <div id="tabGroups"></div>
+  <script src="sidebar.js"></script>
+</body>
+</html>
