@@ -41,13 +41,17 @@
       0% { transform: rotate(0deg); } 
       100% { transform: rotate(360deg); } 
     }
-    #tabGroups { margin-top: 20px; }
+    #tabGroups { 
+      margin-top: 20px; 
+      padding: 0 10px; /* Add padding to the container */
+    }
     .group { 
       margin-bottom: 20px; 
-      background-color: #2b2a33;
+      background-color: transparent; /* Remove background */
       border-radius: 4px; 
-      padding: 10px; 
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      padding: 10px 0; /* Remove horizontal padding, keep vertical */
+      box-shadow: none; /* Remove box shadow */
+      width: 100%; /* Ensure full width */
     }
     .group-title { 
       font-weight: bold; 
@@ -77,23 +81,24 @@
     }
     .tab-list .tab-item { 
       margin-bottom: 5px;
-      background-color: #38383d;
       border-radius: 4px;
+      height: 34px;
       position: relative;
       overflow: hidden;
       display: flex;
+      flex-direction: row;
+      justify-content: space-between;
       align-items: center;
       padding: 8px 12px;
       cursor: pointer;
       transition: background-color 0.2s;
-      justify-content: space-between; /* Distribute elements horizontally */
+      background-color: transparent; /* Remove default background */
     }
     .tab-list .tab-item:hover {
       background-color: #42414d;
     }
     .tab-list .tab-item.active-tab {
       background-color: #4a4a57;
-      border-left: 3px solid #0a84ff;
       transition: background-color 0.2s ease-in-out;
     }
     .tab-list .tab-item.active-tab:hover {
@@ -119,7 +124,7 @@
       top: 0;
       bottom: 0;
       width: 30px;
-      background: linear-gradient(to right, rgba(56, 56, 61, 0), #38383d);
+      background: linear-gradient(to right, transparent, transparent); /* Remove gradient for inactive tabs */
       pointer-events: none;
       transition: background-color 0.2s ease-in-out;
     }
@@ -136,16 +141,21 @@
       color: #fbfbfe;
       font-size: 16px;
       cursor: pointer;
-      padding: 0 5px;
-      width: 16px; /* Set the width of the close button to the width of the X */
-      opacity: 0.7;
+      padding: 0;
+      width: 16px;
+      height: 16px;
+      display: none;
       transition: opacity 0.2s;
+      align-items: center;
+      justify-content: center;
+      margin-left: 8px;
     }
-
+    .tab-item:hover .close-tab {
+      display: block;
+    }
     .close-tab:hover {
       opacity: 1;
     }
-
     .tab-item-content {
       display: flex;
       align-items: center;

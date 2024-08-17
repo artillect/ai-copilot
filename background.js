@@ -135,7 +135,8 @@ Good categorization example:
 Poor categorization example:
 {
   "General Entertainment": [0, 1, 3, 4, 7],
-  "Work Stuff": [2, 5, 6, 8, 9]
+  "Work Stuff": [2, 5, 6, 8, 9],
+  "Misc": [2]
 }
 </examples>
 
