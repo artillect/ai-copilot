@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
       groupTabsButton.disabled = false;
     }
     if (message.action === 'tabCreated') {
-      handleNewTab(message.tab, message.parentTabId, message.hasParent);
+      handleNewTab(message.tab, message.parentTab, message.hasParent);
     } else if (message.action === 'tabActivated') {
       updateActiveTab(message.tabId);
     } else if (message.action === 'tabRemoved') {
@@ -125,13 +125,13 @@ function createTabElement(tab) {
   return li;
 }
 
-function handleNewTab(tab, parentTabId, hasParent) {
+function handleNewTab(tab, parentTab, hasParent) {
   const tabGroupsElement = document.getElementById('tabGroups');
   let targetGroup;
 
   if (hasParent) {
     targetGroup = Array.from(tabGroupsElement.children).find(group => 
-      group.querySelector(`[data-tab-id="${parentTabId}"]`)
+      group.querySelector(`[data-tab-id="${parentTab.id}"]`)
     );
   }
 

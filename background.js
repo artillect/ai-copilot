@@ -9,9 +9,21 @@ browser.runtime.onMessage.addListener((message) => {
 async function groupTabs(selectedAPI) {
   try {
     const tabs = await browser.tabs.query({ currentWindow: true });
-    const tabData = tabs.map(tab => ({
-      title: tab.title,
-      url: tab.url
+    const tabData = await Promise.all(tabs.map(async tab => {
+      let parentTitle = null;
+      if (tab.openerTabId) {
+        try {
+          const parentTab = await browser.tabs.get(tab.openerTabId);
+          parentTitle = parentTab.title;
+        } catch (error) {
+          console.error(`Error fetching parent tab for tab ${tab.id}:`, error);
+        }
+      }
+      return {
+        title: tab.title,
+        url: tab.url,
+        parentTitle: parentTitle
+      };
     }));
     
     browser.runtime.sendMessage({ status: 'Categorizing tabs...' });
@@ -38,52 +50,53 @@ There is no character limit for your response. Do not say that you are going to 
 <instructions>
 Given the following list of browser tabs, organize them into 4-8 logical groups based on the specific tasks they are likely being used for. Follow these steps carefully, thinking out loud for each:
 
-1. Individual Tab Analysis:
+1. Initial Tab Analysis:
    <tab_analysis>
-   For each of the ${tabData.length} tabs provided below, provide a structured analysis:
-   a) Topic identification: [Describe the topic of the tab and any relevant keywords found in the title or URL]
-   b) Specific task: [Describe the precise task the user might be performing]
-   c) Content relation to user goals: [Explain how the tab's exact content relates to potential user objectives]
-   d) Complementary tabs: [List other tabs that might be used alongside this one for a specific common purpose]
-   e) Potential group names: [Provide 2-3 highly specific, task-oriented group names this tab could belong to, with brief justifications]
+   For each of the ${tabData.length} tabs provided below, provide a brief analysis:
+   a) Topic identification: [Describe the main topic and likely user intent]
+   b) Category: [Classify as Entertainment, Interest, Task, or Administrative]
+   c) Potential group: [Suggest 1-2 specific, task-oriented group names]
    </tab_analysis>
 
-2. Theme Identification:
-   <theme_identification>
-   After analyzing all ${tabData.length} tabs individually, identify and explain common themes or specific tasks that emerge:
-   - Provide 2-3 sentences for each identified theme
-   - Explain how the theme emerged from the tab analysis
-   - Specify which tabs contribute to this theme
-   - Justify the theme's significance for task-based grouping
-   Be as granular and specific as possible in your analysis.
-   </theme_identification>
+2. Preliminary Grouping:
+   <preliminary_grouping>
+   Sort tabs into broad categories based on this schema:
+   a) Entertainment & Media
+   b) General Interests & Learning
+   c) Active Projects & Tasks
+   d) Research & Development
+   e) Tools & Resources
+   f) Administration & Settings
+   Identify potential sub-groups within these categories.
+   </preliminary_grouping>
 
-3. Group Name Creation:
-   <group_creation>
-   Create 4-8 group names that are concise (2-4 words) and descriptive of very specific tasks. For each group name:
-   - Provide a clear definition of what the group represents
-   - Explain how it differs from other potential groups
+3. Group Name Refinement:
+   <group_refinement>
+   Create 4-8 group names that are:
+   - Concise (2-3 words max)
+   - Highly specific and task-oriented
+   - Without repetitive elements (e.g., avoid adding "Center" to every name)
+   For each group name:
+   - Provide a clear definition
+   - Explain how it differs from other groups
    - Justify its specificity and task-orientation
-   - Ensure the name uses single words (avoid "or", "and", or slashes)
-   - Prioritize specificity over broader categories
-   </group_creation>
+   </group_refinement>
 
-4. Tab Assignment:
+4. Final Tab Assignment:
    <tab_assignment>
-   For each of the ${tabData.length} tabs, decide which single group it best fits into. Provide:
-   - The primary reason for placement in the chosen group
-   - One alternative group considered and why it was rejected
-   - How this assignment contributes to the overall coherence of the group
-   Focus on the specific content and likely user intent.
+   For each tab, assign it to the most appropriate single group. Provide:
+   - Primary reason for the assignment
+   - How it contributes to the group's coherence
+   Ensure groups have at least 3 tabs where possible, with justification for smaller groups.
    </tab_assignment>
 
-5. Review and Refinement:
+5. Review and Ordering:
    <review_process>
-   - Review each group name for specificity and task-orientation
-   - Consider if any groups can be split or merged to improve categorization
-   - Ensure each group has at least 3 tabs, or provide explicit justification for smaller groups
-   - Verify that each tab appears in exactly one group
-   - Confirm that all tabs are accounted for in the grouping
+   - Arrange groups in this order: Entertainment → Interests → Tasks → Administrative
+   - Review each group for specificity and task-orientation
+   - Consider splitting or merging groups to improve categorization
+   - Verify each tab appears in exactly one group
+   - Confirm all tabs are accounted for
    </review_process>
 
 6. Final Grouping:
@@ -106,22 +119,23 @@ Given the following list of browser tabs, organize them into 4-8 logical groups 
    - Covers all provided tabs without duplication
    - Balances specificity with reasonable group sizes
    - Represents likely user intentions based on tab content
+   - Follows the preferred ordering of entertainment → interests → tasks → administrative
    </summary>
 </instructions>
 
 <examples>
 Good categorization example:
 {
-  "Project Roadmap Planning": [0, 3, 7],
-  "JavaScript Debugging": [1, 4],
-  "Competitor Analysis": [2, 5, 6],
-  "French Vocabulary Study": [8, 9]
+  "Music Discovery": [0, 3, 7],
+  "Game Strategy": [1, 4],
+  "AI Development": [2, 5, 6],
+  "French Learning": [8, 9]
 }
 
 Poor categorization example:
 {
-  "General Work Tasks": [4, 5, 6, 7],
-  "Learning Activities": [8, 9]
+  "General Entertainment": [0, 1, 3, 4, 7],
+  "Work Stuff": [2, 5, 6, 8, 9]
 }
 </examples>
 
@@ -132,17 +146,18 @@ A successful categorization will:
 - Include at least 3 tabs per group (with justified exceptions)
 - Accurately reflect the likely tasks or purposes of the tabs
 - Account for all provided tabs
+- Follow the preferred ordering scheme
 </criteria>
 
 Here are the ${tabData.length} tabs that you need to categorize:
-${tabData.map((tab, index) => `${index}. ${tab.title} - ${tab.url}`).join('\n')}
+${tabData.map((tab, index) => `${index}. ${tab.title} - ${tab.url} (Parent: ${tab.parentTitle || 'None'})`).join('\n')}
 
 Your response must follow this exact format:
-1. Individual tab analysis of every single tab(step 1)
-2. Identification of common themes (step 2)
-3. Creation and explanation of group names (step 3)
-4. Assignment of tabs to groups with reasoning (step 4)
-5. Review and refinement of groupings (step 5)
+1. Initial tab analysis (step 1)
+2. Preliminary grouping (step 2)
+3. Group name refinement (step 3)
+4. Final tab assignment (step 4)
+5. Review and ordering (step 5)
 6. JSON object with your final grouping in a code block (step 6)
 7. Categorization summary (step 7)
 
@@ -221,11 +236,12 @@ async function handleTabCreated(tab) {
   let parentTab = null;
   if (tab.openerTabId) {
     parentTab = await browser.tabs.get(tab.openerTabId);
+    console.log(tab.openerTabId);
   }
   const message = {
     action: 'tabCreated',
     tab: tab,
-    parentTabId: parentTab ? parentTab.id : null,
+    parentTab: parentTab,
     hasParent: !!parentTab
   };
   browser.runtime.sendMessage(message);
