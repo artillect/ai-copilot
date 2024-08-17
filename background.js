@@ -31,6 +31,8 @@ async function categorizeTabs(tabData, selectedAPI) {
 
   const prompt = `<context>
 You are an Expert Task Organizer, specializing in categorizing browser tabs based on the user's specific intended tasks. Your goal is to create logical, highly specific task-oriented groups that reflect how a user might be using these tabs together. The results will help users better organize their browsing sessions and improve productivity.
+You always analyze every tab provided, do not truncate any of the steps. (i.e. NEVER say "(Rest of the analysis for tabs 4-10)")
+There is no character limit for your response. Do not say that you are going to do something without actually doing it.
 </context>
 
 <instructions>
@@ -38,16 +40,17 @@ Given the following list of browser tabs, organize them into 4-8 logical groups 
 
 1. Individual Tab Analysis:
    <tab_analysis>
-   For each tab, provide a structured analysis:
-   a) Specific task: [Describe the precise task the user might be performing]
-   b) Content relation to user goals: [Explain how the tab's exact content relates to potential user objectives]
-   c) Complementary tabs: [List other tabs that might be used alongside this one for a specific common purpose]
-   d) Potential group names: [Provide 2-3 highly specific, task-oriented group names this tab could belong to, with brief justifications]
+   For each of the ${tabData.length} tabs provided below, provide a structured analysis:
+   a) Topic identification: [Describe the topic of the tab and any relevant keywords found in the title or URL]
+   b) Specific task: [Describe the precise task the user might be performing]
+   c) Content relation to user goals: [Explain how the tab's exact content relates to potential user objectives]
+   d) Complementary tabs: [List other tabs that might be used alongside this one for a specific common purpose]
+   e) Potential group names: [Provide 2-3 highly specific, task-oriented group names this tab could belong to, with brief justifications]
    </tab_analysis>
 
 2. Theme Identification:
    <theme_identification>
-   After analyzing all tabs individually, identify and explain common themes or specific tasks that emerge:
+   After analyzing all ${tabData.length} tabs individually, identify and explain common themes or specific tasks that emerge:
    - Provide 2-3 sentences for each identified theme
    - Explain how the theme emerged from the tab analysis
    - Specify which tabs contribute to this theme
@@ -67,7 +70,7 @@ Given the following list of browser tabs, organize them into 4-8 logical groups 
 
 4. Tab Assignment:
    <tab_assignment>
-   For each tab, decide which single group it best fits into. Provide:
+   For each of the ${tabData.length} tabs, decide which single group it best fits into. Provide:
    - The primary reason for placement in the chosen group
    - One alternative group considered and why it was rejected
    - How this assignment contributes to the overall coherence of the group
@@ -93,6 +96,8 @@ Given the following list of browser tabs, organize them into 4-8 logical groups 
    }
    \`\`\`
    </final_output>
+   Ensure that you properly surround the JSON object with \`\`\`json and \`\`\`.
+   Make sure to include all tabs (${tabData.length} tabs numbered 0-${tabData.length - 1}) once in the final grouping.
 
 7. Categorization Summary:
    <summary>
@@ -115,7 +120,7 @@ Good categorization example:
 
 Poor categorization example:
 {
-  "General Work Tasks": [0, 1, 2, 3, 4, 5, 6, 7],
+  "General Work Tasks": [4, 5, 6, 7],
   "Learning Activities": [8, 9]
 }
 </examples>
@@ -129,11 +134,11 @@ A successful categorization will:
 - Account for all provided tabs
 </criteria>
 
-Tabs:
-${tabData.map((tab, index) => `${index}. ${tab.title}`).join('\n')}
+Here are the ${tabData.length} tabs that you need to categorize:
+${tabData.map((tab, index) => `${index}. ${tab.title} - ${tab.url}`).join('\n')}
 
 Your response must follow this exact format:
-1. Individual tab analysis (step 1)
+1. Individual tab analysis of every single tab(step 1)
 2. Identification of common themes (step 2)
 3. Creation and explanation of group names (step 3)
 4. Assignment of tabs to groups with reasoning (step 4)

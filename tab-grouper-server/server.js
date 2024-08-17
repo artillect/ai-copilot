@@ -37,12 +37,16 @@ app.post('/categorize', async (req, res) => {
         headers: {
           'anthropic-version': '2023-06-01',
           'x-api-key': ANTHROPIC_API_KEY,
-          'content-type': 'application/json'
+          'content-type': 'application/json',
+          'anthropic-beta': 'max-tokens-3-5-sonnet-2024-07-15'
         },
         body: JSON.stringify({
-          model: "claude-3-haiku-20240307",
-          max_tokens: 4096,
-          messages: messages
+          model: "claude-3-5-sonnet-20240620",
+          max_tokens: 8192,
+          messages: messages,
+          // top_p: 0.2,
+          temperature: 0.5,
+          // presence_penalty: 0.2,
         })
       });
     } else if (selectedAPI === 'groq') {
@@ -55,7 +59,9 @@ app.post('/categorize', async (req, res) => {
         },
         body: JSON.stringify({
           messages: messages,
-          model: 'llama3-8b-8192'
+          model: 'llama-3.1-8b-instant',
+          temperature: 0.5,
+          // model: 'mixtral-8x7b-32768'
         })
       });
     } else {
