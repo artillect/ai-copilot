@@ -67,6 +67,7 @@ Given the following list of browser tabs, organize them into 4-8 logical groups 
    d) Research & Development
    e) Tools & Resources
    f) Administration & Settings
+   Try to keep children with their parent tab, splitting off separate topics if there are enough children that are similar enough to constitute a new group.
    Identify potential sub-groups within these categories.
    </preliminary_grouping>
 
@@ -80,6 +81,7 @@ Given the following list of browser tabs, organize them into 4-8 logical groups 
    - Provide a clear definition
    - Explain how it differs from other groups
    - Justify its specificity and task-orientation
+   Ensure that the groups reflect likely user intentions based on tab content.
    </group_refinement>
 
 4. Final Tab Assignment:
@@ -88,6 +90,7 @@ Given the following list of browser tabs, organize them into 4-8 logical groups 
    - Primary reason for the assignment
    - How it contributes to the group's coherence
    Ensure groups have at least 3 tabs where possible, with justification for smaller groups.
+   Balance specificity with reasonable group sizes.
    </tab_assignment>
 
 5. Review and Ordering:
@@ -95,8 +98,11 @@ Given the following list of browser tabs, organize them into 4-8 logical groups 
    - Arrange groups in this order: Entertainment → Interests → Tasks → Administrative
    - Review each group for specificity and task-orientation
    - Consider splitting or merging groups to improve categorization
-   - Verify each tab appears in exactly one group
+   - Rename groups to more accurately describe the tabs in the group
+   - Make any final changes to the grouping
+   - Verify each tab appears only once in the final grouping
    - Confirm all tabs are accounted for
+   - Ensure the grouping covers all provided tabs without duplication
    </review_process>
 
 6. Final Grouping:
@@ -111,17 +117,8 @@ Given the following list of browser tabs, organize them into 4-8 logical groups 
    </final_output>
    Ensure that you properly surround the JSON object with \`\`\`json and \`\`\`.
    Make sure to include all tabs (${tabData.length} tabs numbered 0-${tabData.length - 1}) once in the final grouping.
-
-7. Categorization Summary:
-   <summary>
-   Provide a brief paragraph explaining how your final grouping:
-   - Reflects specific, task-oriented groups
-   - Covers all provided tabs without duplication
-   - Balances specificity with reasonable group sizes
-   - Represents likely user intentions based on tab content
-   - Follows the preferred ordering of entertainment → interests → tasks → administrative
-   </summary>
-</instructions>
+   Include each tab exactly once and no duplication.
+   </instructions>
 
 <examples>
 Good categorization example:
@@ -148,6 +145,8 @@ A successful categorization will:
 - Accurately reflect the likely tasks or purposes of the tabs
 - Account for all provided tabs
 - Follow the preferred ordering scheme
+- Balance specificity with reasonable group sizes
+- Represent likely user intentions based on tab content
 </criteria>
 
 Here are the ${tabData.length} tabs that you need to categorize:
@@ -160,7 +159,6 @@ Your response must follow this exact format:
 4. Final tab assignment (step 4)
 5. Review and ordering (step 5)
 6. JSON object with your final grouping in a code block (step 6)
-7. Categorization summary (step 7)
 
 Ensure each tab is in exactly one group and that your group names are specific and task-oriented.`
 
