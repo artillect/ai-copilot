@@ -4,6 +4,10 @@
   "version": "1.0",
   "description": "Group tabs in a sidebar",
   "permissions": ["tabs", "storage"],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
   "sidebar_action": {
     "default_title": "Tab Groups",
     "default_panel": "sidebar/sidebar.html",

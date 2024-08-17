@@ -29,39 +29,105 @@ async function groupTabs(selectedAPI) {
 async function categorizeTabs(tabData, selectedAPI) {
   const SERVER_URL = 'http://localhost:3002/categorize';
 
-  const prompt = `You are an Expert Task Organizer, specializing in categorizing browser tabs based on the user's specific intended tasks. Your goal is to create logical, highly specific task-oriented groups that reflect how a user might be using these tabs together.
+  const prompt = `<context>
+You are an Expert Task Organizer, specializing in categorizing browser tabs based on the user's specific intended tasks. Your goal is to create logical, highly specific task-oriented groups that reflect how a user might be using these tabs together. The results will help users better organize their browsing sessions and improve productivity.
+</context>
 
+<instructions>
 Given the following list of browser tabs, organize them into 4-8 logical groups based on the specific tasks they are likely being used for. Follow these steps carefully, thinking out loud for each:
 
-1. For each tab, consider and verbalize:
-   - What specific task might the user be performing with this tab?
-   - How does this tab's exact content (not just the website) relate to potential user goals?
-   - What other tabs might be used alongside this one for a very specific common purpose?
-   - List 2-3 potential highly specific group names this tab could belong to.
+1. Individual Tab Analysis:
+   <tab_analysis>
+   For each tab, provide a structured analysis:
+   a) Specific task: [Describe the precise task the user might be performing]
+   b) Content relation to user goals: [Explain how the tab's exact content relates to potential user objectives]
+   c) Complementary tabs: [List other tabs that might be used alongside this one for a specific common purpose]
+   d) Potential group names: [Provide 2-3 highly specific, task-oriented group names this tab could belong to, with brief justifications]
+   </tab_analysis>
 
-2. After considering all tabs individually, identify and explain common themes or specific tasks that emerge. Be as granular as possible.
+2. Theme Identification:
+   <theme_identification>
+   After analyzing all tabs individually, identify and explain common themes or specific tasks that emerge:
+   - Provide 2-3 sentences for each identified theme
+   - Explain how the theme emerged from the tab analysis
+   - Specify which tabs contribute to this theme
+   - Justify the theme's significance for task-based grouping
+   Be as granular and specific as possible in your analysis.
+   </theme_identification>
 
-3. Create 4-8 group names that are concise (2-4 words) and descriptive of very specific tasks. Explain your reasoning for each name. Avoid using "or", "and", or slashes in group names. Prioritize specificity over broader categories.
+3. Group Name Creation:
+   <group_creation>
+   Create 4-8 group names that are concise (2-4 words) and descriptive of very specific tasks. For each group name:
+   - Provide a clear definition of what the group represents
+   - Explain how it differs from other potential groups
+   - Justify its specificity and task-orientation
+   - Ensure the name uses single words (avoid "or", "and", or slashes)
+   - Prioritize specificity over broader categories
+   </group_creation>
 
-4. For each tab, decide which single group it best fits into and explain your reasoning, focusing on the specific content and likely user intent.
+4. Tab Assignment:
+   <tab_assignment>
+   For each tab, decide which single group it best fits into. Provide:
+   - The primary reason for placement in the chosen group
+   - One alternative group considered and why it was rejected
+   - How this assignment contributes to the overall coherence of the group
+   Focus on the specific content and likely user intent.
+   </tab_assignment>
 
-5. Review your group names and consider if any can be made more specific or split into multiple groups. Revise if necessary.
+5. Review and Refinement:
+   <review_process>
+   - Review each group name for specificity and task-orientation
+   - Consider if any groups can be split or merged to improve categorization
+   - Ensure each group has at least 3 tabs, or provide explicit justification for smaller groups
+   - Verify that each tab appears in exactly one group
+   - Confirm that all tabs are accounted for in the grouping
+   </review_process>
 
-6. Double-check your groupings, verbalizing your thought process to ensure no tab appears in multiple groups and that each group represents a cohesive, specific task.
+6. Final Grouping:
+   <final_output>
+   Provide your final grouping as a JSON object where keys are group names and values are arrays of tab indices (0-based). Use this format:
+   \`\`\`json
+   {
+     "Specific Task Group 1": [0, 2, 4],
+     "Specific Task Group 2": [1, 3, 5]
+   }
+   \`\`\`
+   </final_output>
 
-7. Provide your final grouping as a JSON object where keys are group names and values are arrays of tab indices (0-based).
+7. Categorization Summary:
+   <summary>
+   Provide a brief paragraph explaining how your final grouping:
+   - Reflects specific, task-oriented groups
+   - Covers all provided tabs without duplication
+   - Balances specificity with reasonable group sizes
+   - Represents likely user intentions based on tab content
+   </summary>
+</instructions>
 
-Example of good vs. poor categorization:
+<examples>
+Good categorization example:
+{
+  "Project Roadmap Planning": [0, 3, 7],
+  "JavaScript Debugging": [1, 4],
+  "Competitor Analysis": [2, 5, 6],
+  "French Vocabulary Study": [8, 9]
+}
 
-Good: 
-"Project Planning": [0, 3, 7]
-"Code Debugging": [1, 4]
-"Market Research": [2, 5, 6]
-"Learning French": [8, 9]
+Poor categorization example:
+{
+  "General Work Tasks": [0, 1, 2, 3, 4, 5, 6, 7],
+  "Learning Activities": [8, 9]
+}
+</examples>
 
-Poor:
-"Work Stuff": [0, 1, 2, 3, 4, 5, 6, 7]
-"Education": [8, 9]
+<criteria>
+A successful categorization will:
+- Have 4-8 groups with clear, specific, task-oriented names
+- Place each tab in exactly one group
+- Include at least 3 tabs per group (with justified exceptions)
+- Accurately reflect the likely tasks or purposes of the tabs
+- Account for all provided tabs
+</criteria>
 
 Tabs:
 ${tabData.map((tab, index) => `${index}. ${tab.title}`).join('\n')}
@@ -71,18 +137,11 @@ Your response must follow this exact format:
 2. Identification of common themes (step 2)
 3. Creation and explanation of group names (step 3)
 4. Assignment of tabs to groups with reasoning (step 4)
-5. Double-checking of groupings (step 5)
-6. JSON object with your final grouping in a code block with the following format (step 6)
+5. Review and refinement of groupings (step 5)
+6. JSON object with your final grouping in a code block (step 6)
+7. Categorization summary (step 7)
 
-\`\`\`json
-{
-  "Group 1": [0, 2, 4],
-  "Group 2": [1, 3, 5]
-}
-\`\`\`
-
-If any tab appears in multiple groups or if you use poor group naming, your entire response will be discarded. Ensure each tab is in exactly one group.
-`
+Ensure each tab is in exactly one group and that your group names are specific and task-oriented.`
 
   browser.runtime.sendMessage({ status: 'Sending request to local server...' });
   try {
