@@ -2,6 +2,9 @@
 <html>
 <head>
   <style>
+    * {
+      box-sizing: border-box;
+    }
     body { 
       width: 100%; 
       padding: 10px; 
@@ -52,6 +55,10 @@
       padding: 10px 0; /* Remove horizontal padding, keep vertical */
       box-shadow: none; /* Remove box shadow */
       width: 100%; /* Ensure full width */
+      transition: padding 0.2s ease;
+    }
+    .group.drag-over {
+      border: 2px dashed #4CAF50;
     }
     .group-title { 
       font-weight: bold; 
@@ -93,6 +100,8 @@
       cursor: pointer;
       transition: background-color 0.2s;
       background-color: transparent; /* Remove default background */
+      box-sizing: border-box;
+      border: 2px solid transparent;
     }
     .tab-list .tab-item:hover {
       background-color: #42414d;
@@ -161,6 +170,11 @@
       align-items: center;
       overflow: hidden;
       flex-grow: 1;
+    }
+    .tab-item.placeholder {
+      border: 2px dashed #4CAF50;
+      background-color: rgba(76, 175, 80, 0.1);
+      pointer-events: none;
     }
   </style>
 </head>

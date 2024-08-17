@@ -76,6 +76,7 @@ async function displayGroupedTabs(groupedTabs) {
 
       tabGroupsElement.appendChild(groupDiv);
     }
+    setupDragAndDrop();
   });
 }
 
@@ -83,6 +84,7 @@ function createTabElement(tab) {
   const li = document.createElement('li');
   li.className = 'tab-item';
   li.dataset.tabId = tab.id;
+  li.draggable = true;
   
   // Create favicon image
   const favicon = document.createElement('img');
@@ -146,6 +148,7 @@ function handleNewTab(tab, parentTab, hasParent) {
   const tabList = targetGroup.querySelector('.tab-list');
   const tabItem = createTabElement(tab);
   tabList.appendChild(tabItem);
+  setupDragAndDrop();
 }
 
 function createGroup(groupName) {
@@ -162,6 +165,11 @@ function createGroup(groupName) {
   const tabList = document.createElement('ul');
   tabList.className = 'tab-list';
   groupDiv.appendChild(tabList);
+
+  groupDiv.addEventListener('dragover', dragOver);
+  groupDiv.addEventListener('dragenter', dragEnter);
+  groupDiv.addEventListener('dragleave', dragLeave);
+  groupDiv.addEventListener('drop', drop);
 
   return groupDiv;
 }
@@ -203,5 +211,100 @@ function updateTabInfo(tabId, newTitle, newFavIconUrl) {
         favicon.src = newFavIconUrl || 'path/to/default-favicon.png';
       }
     }
+  }
+}
+
+function setupDragAndDrop() {
+  const tabItems = document.querySelectorAll('.tab-item');
+  const groups = document.querySelectorAll('.group');
+
+  tabItems.forEach(tabItem => {
+    tabItem.addEventListener('dragstart', dragStart);
+    tabItem.addEventListener('dragend', dragEnd);
+  });
+
+  groups.forEach(group => {
+    group.addEventListener('dragover', dragOver);
+    group.addEventListener('dragenter', dragEnter);
+    group.addEventListener('dragleave', dragLeave);
+    group.addEventListener('drop', drop);
+  });
+}
+
+function dragStart(e) {
+  e.dataTransfer.setData('text/plain', e.target.dataset.tabId);
+  e.target.classList.add('dragging');
+  setTimeout(() => e.target.style.display = 'none', 0);
+}
+
+function dragEnd(e) {
+  e.target.classList.remove('dragging');
+  e.target.style.display = '';
+  removePlaceholder();
+}
+
+function dragOver(e) {
+  e.preventDefault();
+  const tabItem = e.target.closest('.tab-item');
+  if (tabItem && !tabItem.classList.contains('placeholder')) {
+    const rect = tabItem.getBoundingClientRect();
+    const midpoint = (rect.top + rect.bottom) / 2;
+    const placeholder = createPlaceholder();
+    
+    if (e.clientY < midpoint) {
+      tabItem.parentNode.insertBefore(placeholder, tabItem);
+    } else {
+      tabItem.parentNode.insertBefore(placeholder, tabItem.nextSibling);
+    }
+  }
+}
+
+function dragEnter(e) {
+  e.preventDefault();
+  const group = e.target.closest('.group');
+  if (group && group.querySelector('.tab-list').children.length === 0) {
+    const placeholder = createPlaceholder();
+    group.querySelector('.tab-list').appendChild(placeholder);
+  }
+}
+
+function dragLeave(e) {
+  if (!e.relatedTarget || !e.currentTarget.contains(e.relatedTarget)) {
+    removePlaceholder();
+  }
+}
+
+function drop(e) {
+  e.preventDefault();
+  const group = e.target.closest('.group');
+  if (group) {
+    const tabList = group.querySelector('.tab-list');
+    const tabId = e.dataTransfer.getData('text');
+    const draggedTab = document.querySelector(`[data-tab-id="${tabId}"]`);
+    
+    if (draggedTab) {
+      const placeholder = tabList.querySelector('.placeholder');
+      if (placeholder) {
+        tabList.insertBefore(draggedTab, placeholder);
+        placeholder.remove();
+      } else {
+        tabList.appendChild(draggedTab);
+      }
+    }
+  }
+}
+
+function createPlaceholder() {
+  removePlaceholder();
+  const placeholder = document.createElement('li');
+  placeholder.className = 'tab-item placeholder';
+  placeholder.style.height = '34px';
+  return placeholder;
+}
+
+function removePlaceholder() {
+  const placeholder = document.querySelector('.placeholder');
+  if (placeholder) {
+    placeholder.remove();
   }
 }
