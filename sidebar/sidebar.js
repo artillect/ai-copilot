@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadCurrentTabs();
 
   groupTabsButton.addEventListener('click', () => {
-    buttonTextElement.textContent = 'Grouping tabs...';
+    buttonTextElement.textContent = 'Thinking...';
     spinnerElement.style.display = 'inline-block';
     groupTabsButton.disabled = true;
 
@@ -18,17 +18,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
   browser.runtime.onMessage.addListener((message) => {
     if (message.status) {
-      buttonTextElement.textContent = message.status;
+      switch (message.status) {
+        case 'Sending request to local server':
+          buttonTextElement.textContent = 'Thinking...';
+          break;
+        case 'Processing response':
+          buttonTextElement.textContent = 'Processing...';
+          break;
+        case 'Grouping tabs':
+          buttonTextElement.textContent = 'Grouping...';
+          break;
+        default:
+          buttonTextElement.textContent = 'Working...';
+      }
     }
     if (message.output) {
       spinnerElement.style.display = 'none';
-      buttonTextElement.textContent = 'Group Tabs';
+      buttonTextElement.textContent = 'Group';
       groupTabsButton.disabled = false;
       displayGroupedTabs(message.output);
     }
     if (message.error) {
       spinnerElement.style.display = 'none';
-      buttonTextElement.textContent = 'Error: ' + message.error;
+      buttonTextElement.textContent = 'Error';
       groupTabsButton.disabled = false;
     }
     if (message.action === 'tabCreated') {
@@ -85,28 +97,32 @@ function createTabElement(tab) {
   li.className = 'tab-item';
   li.dataset.tabId = tab.id;
   li.draggable = true;
-  
+
+  const tabItemContent = document.createElement('div');
+  tabItemContent.className = 'tab-item-content';
+
   // Create favicon image
   const favicon = document.createElement('img');
   favicon.src = tab.favIconUrl || 'path/to/default-favicon.png';
   favicon.className = 'favicon';
   favicon.width = 16;
   favicon.height = 16;
-  
+
   // Create span for tab title
   const titleSpan = document.createElement('span');
   titleSpan.className = 'tab-title';
   titleSpan.textContent = tab.title;
-  
+
   // Create close button
   const closeButton = document.createElement('button');
   closeButton.className = 'close-tab';
   closeButton.innerHTML = '&times;';
   closeButton.title = 'Close tab';
-  
+
   // Append favicon, title span, and close button to list item
-  li.appendChild(favicon);
-  li.appendChild(titleSpan);
+  li.appendChild(tabItemContent);
+  tabItemContent.appendChild(favicon);
+  tabItemContent.appendChild(titleSpan);
   li.appendChild(closeButton);
 
   // Add click event listener to the li element
