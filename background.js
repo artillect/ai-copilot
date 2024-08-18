@@ -117,26 +117,38 @@ Given the following list of browser tabs, organize them into 4-8 logical groups 
 
 6. Final Grouping:
    <final_output>
-   Translate the final groups you refined in step 5 directly into a JSON object. Each key should be a group name, and each value should be an array of tab indices (0-based) that belong to that group after all refinements.
+   Translate the final groups you refined in step 5 directly into a JSON object with the following structure:
+   
+   {
+     "groups": ["Group Name 1", "Group Name 2", ...],
+     "tabs": {"0": "Group Name 1", "1": "Group Name 2", ...}
+   }
 
    Follow these rules:
+   - The "groups" array should contain all unique group names from your final refined list in step 5.
+   - The "tabs" object should have keys representing tab indices (0-${tabData.length - 1}) and values representing the group name each tab is assigned to.
+   - Ensure each tab index (0-${tabData.length - 1}) appears exactly once in the "tabs" object.
    - Use the exact group names from your final refined list in step 5.
-   - Include tab indices based on the final assignments after all reviews and refinements.
-   - Ensure each tab index (0-${tabData.length - 1}) appears exactly once in the entire JSON object.
    - Include all refinements and adjustments you made in step 5.
 
    Use this format:
    \`\`\`json
    {
-     "Refined Group Name 1": [0, 2, 4],
-     "Refined Group Name 2": [1, 3, 5]
+     "groups": ["Group Name 1", "Group Name 2", "Group Name 3"],
+     "tabs": {
+       "0": "Group Name 1",
+       "1": "Group Name 2",
+       "2": "Group Name 1",
+       "3": "Group Name 3"
+     }
    }
    \`\`\`
    Surround the JSON object with \`\`\`json and \`\`\`.
 
    Before finalizing, verify that:
-   - All ${tabData.length} tabs are included.
-   - No tab index is duplicated across groups.
+   - All ${tabData.length} tabs are included in the "tabs" object.
+   - Each tab index appears only once in the "tabs" object.
+   - All group names in the "tabs" object are present in the "groups" array.
    - The groups and their contents accurately reflect your final refined grouping from step 5.
 
    If you notice any discrepancies with your step 5 refinements, do not alter the JSON. Instead, note the discrepancy after the JSON object.
@@ -146,17 +158,36 @@ Given the following list of browser tabs, organize them into 4-8 logical groups 
 <examples>
 Good categorization example:
 {
-  "Music Discovery": [0, 3, 7],
-  "Game Strategy": [1, 4],
-  "AI Development": [2, 5, 6],
-  "French Learning": [8, 9]
+  "groups": ["Music Discovery", "Game Strategy", "AI Development", "French Learning"],
+  "tabs": {
+    "0": "Music Discovery",
+    "1": "Game Strategy",
+    "2": "AI Development",
+    "3": "Music Discovery",
+    "4": "Game Strategy",
+    "5": "AI Development",
+    "6": "AI Development",
+    "7": "Music Discovery",
+    "8": "French Learning",
+    "9": "French Learning"
+  }
 }
 
 Poor categorization example:
 {
-  "General Entertainment": [0, 1, 3, 4, 7],
-  "Work Stuff": [2, 5, 6, 8, 9],
-  "Misc": [2]
+  "groups": ["General Entertainment", "Work Stuff", "Misc"],
+  "tabs": {
+    "0": "General Entertainment",
+    "1": "General Entertainment",
+    "2": "Work Stuff",
+    "3": "General Entertainment",
+    "4": "General Entertainment",
+    "5": "Work Stuff",
+    "6": "Work Stuff",
+    "7": "General Entertainment",
+    "8": "Misc",
+    "9": "Work Stuff"
+  }
 }
 </examples>
 
@@ -216,12 +247,22 @@ Ensure each tab is in exactly one group and that your group names are specific a
       throw new Error('Invalid API selected');
     }
 
-    // Updated regex to handle both ``` and ```json
     const jsonMatch = content.match(/```(?:json)?\n([\s\S]*?)\n```/);
     if (!jsonMatch) {
       throw new Error('Failed to extract JSON from the response');
     }
-    return JSON.parse(jsonMatch[1]);
+    const parsedJson = JSON.parse(jsonMatch[1]);
+
+    // Convert the new JSON structure to the old format
+    const groupedTabs = {};
+    for (const groupName of parsedJson.groups) {
+      groupedTabs[groupName] = [];
+    }
+    for (const [tabIndex, groupName] of Object.entries(parsedJson.tabs)) {
+      groupedTabs[groupName].push(parseInt(tabIndex));
+    }
+
+    return groupedTabs;
   } catch (error) {
     throw new Error(`Failed to categorize tabs: ${error.message}`);
   }
