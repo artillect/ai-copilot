@@ -59,9 +59,9 @@ app.post('/categorize', async (req, res) => {
         },
         body: JSON.stringify({
           messages: messages,
-          model: 'llama-3.1-8b-instant',
+          // model: 'llama-3.1-8b-instant',
           temperature: 0.5,
-          // model: 'mixtral-8x7b-32768'
+          model: 'mixtral-8x7b-32768'
         })
       });
     } else {
